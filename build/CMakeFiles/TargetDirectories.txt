@@ -1,2 +1,0 @@
-/mnt/c/Users/patgo/OneDrive/Escritorio/Proyectos/Codes/Cpp/3d-rotation/3d-rotation/build/CMakeFiles/edit_cache.dir
-/mnt/c/Users/patgo/OneDrive/Escritorio/Proyectos/Codes/Cpp/3d-rotation/3d-rotation/build/CMakeFiles/rebuild_cache.dir
