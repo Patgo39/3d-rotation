@@ -1,1 +1,0 @@
-/usr/lib64/ccache/c++ -Wl,--dependency-file=CMakeFiles/3d-rotation.dir/link.d "CMakeFiles/3d-rotation.dir/src/main.cpp.o" -o 3d-rotation
