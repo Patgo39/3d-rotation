@@ -1,42 +1,55 @@
-#include <ncurses.h>
-#include <unistd.h> 
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <signal.h>
+#include <cstdlib>
 
-struct Point{
-  int x;
-  int y;
-};
-
-void printPoint(Point p){
-  mvaddch(p.y, p.x, '&');
+void exitHandler(int signal){
+  printf("\033[?25h\033[0m\n");
+  exit(0);
 }
 
-void startNcursesScreen(){
-  initscr();             // Inicia el modo ncurses
-  noecho();              // No muestra las teclas que presionas
-  curs_set(0);           // Oculta el cursor físico
-  nodelay(stdscr, TRUE); // Activa no bloqueante
+void clearScreen() {
+    printf("\033[2J\033[H");
 }
 
-void endNcursesScreen(){
-  printw("\n\n Presiona cualquier tecla...");
-  nodelay(stdscr, FALSE);    // Desactiva no bloqueante
-  getch();                 // 
-  endwin();                // Termina el modo ncurses
+void printCharToXY(double x, double y, char c){
+  printf("\033[%d;%dH#", (int)y, (int)x);
+  fflush(stdout);
 }
-
 
 int main() {
-  startNcursesScreen();
-
-  // 24 80
-  int max_y, max_x;
-  getmaxyx(stdscr, max_y, max_x);
-
-  printw("%d\n", max_y);
-  printw("%d\n",max_x);
+  signal(SIGINT, exitHandler);
   
-  endNcursesScreen();
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+  double x = w.ws_col / 2.0; 
+  double y = w.ws_row / 2.0; 
+  double dx = 1.0;         
+  double dy = 1.0;          
+  
+    // Ocultar el cursor
+  printf("\033[?25l");
+  
+  while (1) {
+    clearScreen();
+    
+    printCharToXY(x, y, '#');
+    
+    x += dx;
+    y += dy;
+    
+    if (x >= w.ws_col || x <= 1) {
+      dx *= -1;
+    }
+    
+    if (y >= w.ws_row || y <= 1) {
+      dy *= -1;
+    }
+    
+    usleep(50000);
+  }
   
   return 0;
 }
-
