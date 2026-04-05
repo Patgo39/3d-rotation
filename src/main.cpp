@@ -15,13 +15,14 @@ double screen_width = 0.0;  // Anchura de caracteres de pantalla
 double screen_height = 0.0; // Altura de caracteres de pantalla
 double aspect_ratio = 0.0; // Proporción de la altura con la anchura.
 const double Z_NEAR = 0.1; // Distancia del origen al final del frustrum.
-const double Z_FAR = 100; // Distancia del origen al viewport.
+const double Z_FAR = 25; // Distancia del origen al viewport.
 const double FOV = 90.0;
-
+const double PI = std::acos(-1.0);
 
 using Z_Buffer = std::vector<std::vector<double>>;
 using Frame_Buffer = std::vector<std::vector<char>>;
 using Point3D = std::array<double, 3>;
+using Point2D = std::array<double, 2>;
 
 /**
  * Maneja el evento de CTRL + C para interrumpir
@@ -40,12 +41,74 @@ void exitEventHandler(int signal){
 void clearScreen() {
     printf("\033[2J\033[H");
 }
+/**
+ * Transforma coordenadas 3d a coordenadas 2d adaptables al ancho y largo de la
+ * pantalla.
+ */
+Point2D matrix_multiplication(Point3D point, double &depth_value) {
 
+  double x = point[0];
+  double y = point[1];
+  double z = point[2];
+
+  std::cout<<"xi: "<<x<<"\n";
+  std::cout<<"yi: "<<y<<"\n";
+  std::cout<<"zi: "<<z<<"\n";
+  
+  
+  double rad_FOV = FOV * (PI / 180.0);
+  double tanHalfFOV = std::tan(rad_FOV / 2.0);
+
+  std::cout<<"tanhalf: "<<tanHalfFOV<<"\n";
+  std::cout<<"aspectr: "<<aspect_ratio<<"\n";
+  
+  
+  double x_proyectado = x / (aspect_ratio * tanHalfFOV);
+  double y_proyectado = y / tanHalfFOV;
+  
+  depth_value = ((-z * (Z_FAR + Z_NEAR)) / (Z_FAR - Z_NEAR)) + 
+    ((-2.0 * Z_FAR * Z_NEAR) / (Z_FAR - Z_NEAR));
+  
+  double w = z; 
+  
+  if (w != 0) {
+    x_proyectado = x_proyectado / w;
+    y_proyectado = y_proyectado / w;
+  }
+  
+
+  Point2D point2D = {x_proyectado, y_proyectado};
+  
+  std::cout<<"xp: "<<x_proyectado<<"\n";
+  std::cout<<"yp: "<<y_proyectado<<"\n";
+  std::cout<<"depth: "<<depth_value<<"\n";
+  std::cout<<"\n";
+  return point2D;
+}
 
 void rendererFace(Point3D p1, Point3D p2, Point3D p3, Point3D p4,
-		  Frame_Buffer *frame_buffer, Z_Buffer *z_buffer){
+		  Frame_Buffer &frame_buffer, Z_Buffer &z_buffer){
 
-  
+  double depth_value1 = 0.0;
+  double depth_value2 = 0.0;
+  double depth_value3 = 0.0;
+  double depth_value4 = 0.0;
+
+  Point2D p1_2d = matrix_multiplication(p1, depth_value1);
+  Point2D p2_2d = matrix_multiplication(p2, depth_value2);
+  Point2D p3_2d = matrix_multiplication(p3, depth_value3);
+  Point2D p4_2d = matrix_multiplication(p4, depth_value4);
+
+  int min_x = static_cast<int>(
+	      std::min({p1_2d[0], p2_2d[0], p3_2d[0], p4_2d[0]}));
+  int max_x = static_cast<int>(
+	      std::max({p1_2d[0], p2_2d[0], p3_2d[0], p4_2d[0]}));
+
+  int min_y = static_cast<int>(
+	      std::min({p1_2d[1], p2_2d[1], p3_2d[1], p4_2d[1]}));
+  int max_y = static_cast<int>(
+	      std::max({p1_2d[1], p2_2d[1], p3_2d[1], p4_2d[1]}));
+
 }
 
 
@@ -69,14 +132,14 @@ int main() {
       std::vector<char>(screen_width, ' ')); 
 
   const std::array<Point3D, 8> cube_coords = {{
-    { 1,  1, 17}, // P0 
-    {-1,  1, 17}, // P1 
-    {-1, -1, 17}, // P2 
-    { 1, -1, 17}, // P3 
-    { 1,  1, 23}, // P4 
-    {-1,  1, 23}, // P5 
-    {-1, -1, 23}, // P6 
-    { 1, -1, 23}  // P7 
+    { 6,  6, 17}, // P0 
+    {-6,  6, 17}, // P1 
+    {-6, -6, 17}, // P2 
+    { 6, -6, 17}, // P3 
+    { 6,  6, 23}, // P4 
+    {-6,  6, 23}, // P5 
+    {-6, -6, 23}, // P6 
+    { 6, -6, 23}  // P7 
     }};
 
   const std::vector<std::array<int, 4>> cube_faces = {
@@ -86,7 +149,10 @@ int main() {
     {1, 5, 6, 2}, // Cara Derecha
     {0, 1, 5, 4}, // Cara Superior
     {3, 2, 6, 7}  // Cara Inferior
-};
+  };
+
+  rendererFace(cube_coords[0], cube_coords[1], cube_coords[2], cube_coords[3],
+	       frame_buffer, z_buffer);
 
   printf("\033[?25h\033[0m\n");
   return 0;
