@@ -14,8 +14,8 @@ double infinity = std::numeric_limits<double>::infinity();
 double screen_width = 0.0;  // Anchura de caracteres de pantalla
 double screen_height = 0.0; // Altura de caracteres de pantalla
 double aspect_ratio = 0.0; // Proporción de la altura con la anchura.
-const double Z_NEAR = 0.1; // Distancia del origen al final del frustrum.
-const double Z_FAR = 25; // Distancia del origen al viewport.
+const double Z_NEAR = 4; // Distancia del origen al viewport
+const double Z_FAR = 29; // Distancia del origen al final del frustrum
 const double FOV = 90.0;
 const double PI = std::acos(-1.0);
 
@@ -49,33 +49,31 @@ Point2D matrix_multiplication(Point3D point, double &depth_value) {
 
   double x = point[0];
   double y = point[1];
-  double z = point[2];
+  double z = -point[2];
 
   std::cout<<"xi: "<<x<<"\n";
   std::cout<<"yi: "<<y<<"\n";
   std::cout<<"zi: "<<z<<"\n";
   
-  
-  double rad_FOV = FOV * (PI / 180.0);
-  double tanHalfFOV = std::tan(rad_FOV / 2.0);
-
-  std::cout<<"tanhalf: "<<tanHalfFOV<<"\n";
-  std::cout<<"aspectr: "<<aspect_ratio<<"\n";
-  
-  
+  double temp_FOV = (FOV / 2) * (PI / 180);
+  double tanHalfFOV = std::tan(temp_FOV);
   double x_proyectado = x / (aspect_ratio * tanHalfFOV);
   double y_proyectado = y / tanHalfFOV;
+
+  // El valor está en el rango [0, 1]
+  depth_value = ((-z * Z_FAR) / (Z_FAR - Z_NEAR)) -
+    ((Z_FAR * Z_NEAR) / (Z_FAR - Z_NEAR));
   
-  depth_value = ((-z * (Z_FAR + Z_NEAR)) / (Z_FAR - Z_NEAR)) + 
-    ((-2.0 * Z_FAR * Z_NEAR) / (Z_FAR - Z_NEAR));
-  
-  double w = z; 
+  double w = -z; 
   
   if (w != 0) {
-    x_proyectado = x_proyectado / w;
-    y_proyectado = y_proyectado / w;
+    x_proyectado /= w;
+    y_proyectado /= w;
+    depth_value /= w;
   }
-  
+
+  x_proyectado = ((x_proyectado + 1) / 2) * screen_width;
+  y_proyectado = ((y_proyectado + 1) / 2) * screen_height;
 
   Point2D point2D = {x_proyectado, y_proyectado};
   
@@ -151,7 +149,7 @@ int main() {
     {3, 2, 6, 7}  // Cara Inferior
   };
 
-  rendererFace(cube_coords[0], cube_coords[1], cube_coords[2], cube_coords[3],
+  rendererFace(cube_coords[0], cube_coords[1], cube_coords[5], cube_coords[4],
 	       frame_buffer, z_buffer);
 
   printf("\033[?25h\033[0m\n");
