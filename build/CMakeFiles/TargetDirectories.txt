@@ -1,3 +1,0 @@
-/home/patriciogarcia/Desktop/Proyects/cpp/projects/3d-rotation/build/CMakeFiles/3d-rotation.dir
-/home/patriciogarcia/Desktop/Proyects/cpp/projects/3d-rotation/build/CMakeFiles/edit_cache.dir
-/home/patriciogarcia/Desktop/Proyects/cpp/projects/3d-rotation/build/CMakeFiles/rebuild_cache.dir
