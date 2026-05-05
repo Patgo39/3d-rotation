@@ -18,3 +18,6 @@ cmake -S . -B build
 
 # Compilar el ejecutable
 cmake --build build
+
+# Ejecutar
+./build/3d-rotation
