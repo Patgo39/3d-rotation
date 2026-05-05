@@ -114,12 +114,12 @@ void renderCube(float cube_half_size, float z_origin, float space, float A){
     for(float snd_coord = -cube_half_size; snd_coord <= cube_half_size; snd_coord += space){
 
       Point3D cube_faces[6] = {
-	{fst_coord, snd_coord, cube_half_size}, // Trasera >
-	{fst_coord, snd_coord, -cube_half_size}, // Frontal +
-	{fst_coord, cube_half_size, snd_coord}, // Superior *
-	{fst_coord, -cube_half_size, snd_coord}, // Inferior #
-	{cube_half_size, fst_coord, snd_coord}, // Derecha -
-	{-cube_half_size, fst_coord, snd_coord} // Izquierda @
+	{fst_coord, snd_coord, cube_half_size}, // Trasera
+	{fst_coord, snd_coord, -cube_half_size}, // Frontal
+	{fst_coord, cube_half_size, snd_coord}, // Superior
+	{fst_coord, -cube_half_size, snd_coord}, // Inferior
+	{cube_half_size, fst_coord, snd_coord}, // Derecha
+	{-cube_half_size, fst_coord, snd_coord} // Izquierda
       };
 
       for(int i = 0; i<6; i++){
